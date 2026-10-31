@@ -6,30 +6,44 @@
 <title>Écrans Moule &amp; Smile</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%23111'/><text x='50' y='68' font-size='56' text-anchor='middle'>📺</text></svg>">
 <style>
-  :root { --or:#D4A63A; --noir:#0b0b0b; }
-  html,body { margin:0; height:100%; background:#000; color:#fff; font-family:system-ui,Segoe UI,Roboto,sans-serif; overflow:hidden; }
-  /* Mode écran */
+  :root { --or:#D4A63A; --noir:#0b0b0b; --gris:#161616; --bord:#333; }
+  * { box-sizing:border-box; }
+  html,body { margin:0; height:100%; background:#000; color:#fff; font-family:system-ui,Segoe UI,Roboto,sans-serif; }
+  body.ecran { overflow:hidden; cursor:none; }
+  /* ===== Mode écran ===== */
   #player { position:fixed; inset:0; width:100vw; height:100vh; object-fit:contain; background:#000; display:none; }
-  body.ecran { cursor:none; }
   body.ecran #player { display:block; }
   body.ecran #menu { display:none; }
-  #version { position:fixed; right:10px; bottom:6px; font-size:11px; color:#fff; opacity:.18; z-index:5; pointer-events:none; }
+  #version { position:fixed; right:10px; bottom:6px; font-size:11px; color:#fff; opacity:.18; z-index:5; pointer-events:none; display:none; }
+  body.ecran #version { display:block; }
   #msg { position:fixed; left:50%; bottom:40px; transform:translateX(-50%); background:rgba(0,0,0,.7); color:var(--or); padding:10px 18px; border-radius:10px; font-size:18px; display:none; z-index:6; }
   #pe { position:fixed; inset:0; display:none; align-items:center; justify-content:center; z-index:7; }
   #pe span { background:rgba(0,0,0,.75); color:var(--or); border:2px solid var(--or); padding:16px 26px; border-radius:14px; font-size:22px; }
-  /* Menu de réglage */
-  #menu { min-height:100%; overflow:auto; background:var(--noir); }
-  header { display:flex; justify-content:space-between; align-items:center; padding:14px 20px; border-bottom:2px solid var(--or); }
-  header h1 { margin:0; font-size:22px; color:var(--or); }
-  header .v { font-size:13px; color:#aaa; }
-  main { max-width:900px; margin:0 auto; padding:24px 16px; }
-  .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:16px; }
-  a.carte { display:block; text-decoration:none; color:#fff; background:#161616; border:1px solid #333; border-radius:14px; padding:20px; }
-  a.carte:hover { border-color:var(--or); }
-  a.carte b { display:block; font-size:20px; color:var(--or); margin-bottom:6px; }
-  a.carte span { color:#bbb; font-size:14px; }
-  a.carte code { display:block; margin-top:10px; font-size:12px; color:#888; word-break:break-all; }
-  p.aide { color:#aaa; font-size:14px; line-height:1.5; margin-top:28px; }
+  /* ===== Menu ===== */
+  #menu { min-height:100%; background:var(--noir); }
+  header { display:flex; justify-content:space-between; align-items:center; gap:10px; padding:14px 16px; border-bottom:2px solid var(--or); }
+  header h1 { margin:0; font-size:20px; color:var(--or); }
+  header .v { font-size:12px; color:#aaa; white-space:nowrap; }
+  main { max-width:960px; margin:0 auto; padding:20px 16px 40px; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:16px; }
+  .carte { background:var(--gris); border:1px solid var(--bord); border-radius:14px; padding:18px; display:flex; flex-direction:column; gap:10px; }
+  .carte b { font-size:20px; color:var(--or); }
+  .carte span { color:#bbb; font-size:14px; }
+  .carte code { font-size:12px; color:#888; word-break:break-all; }
+  .btns { display:flex; flex-wrap:wrap; gap:8px; margin-top:4px; }
+  .btn { display:inline-flex; align-items:center; gap:6px; padding:10px 14px; border-radius:10px; border:1px solid var(--or); background:transparent; color:var(--or); font-size:14px; font-weight:600; text-decoration:none; cursor:pointer; }
+  .btn.plein { background:var(--or); color:#111; }
+  .btn:disabled { opacity:.5; cursor:default; }
+  .etat { font-size:13px; color:#ccc; min-height:18px; }
+  .etat.ok { color:#6fd18b; } .etat.err { color:#ff7b7b; }
+  .barre { height:6px; background:#2a2a2a; border-radius:4px; overflow:hidden; display:none; }
+  .barre i { display:block; height:100%; width:0; background:var(--or); transition:width .3s; }
+  p.aide { color:#aaa; font-size:14px; line-height:1.55; margin-top:26px; }
+  details { margin-top:22px; background:var(--gris); border:1px solid var(--bord); border-radius:14px; padding:14px 16px; }
+  details summary { cursor:pointer; color:var(--or); font-weight:600; }
+  details ol { color:#ccc; font-size:14px; line-height:1.6; padding-left:20px; }
+  details input { width:100%; padding:10px; border-radius:8px; border:1px solid var(--bord); background:#0f0f0f; color:#fff; font-size:14px; margin:8px 0; }
+  .ligne { display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
 </style>
 </head>
 <body>
@@ -39,29 +53,52 @@
 
 <div id="menu">
   <header>
-    <h1>Écrans Moule &amp; Smile</h1>
+    <h1>📺 Écrans Moule &amp; Smile</h1>
     <span class="v" id="vtop"></span>
   </header>
   <main>
-    <div class="grid">
-      <a class="carte" href="?ecran=carte"><b>Carte</b><span>Les 3 écrans de la salle</span><code>?ecran=carte</code></a>
-      <a class="carte" href="?ecran=moules"><b>Moules</b><span>Écran du comptoir moules</span><code>?ecran=moules</code></a>
-      <a class="carte" href="?ecran=frites"><b>Frites</b><span>Écran du comptoir frites</span><code>?ecran=frites</code></a>
-    </div>
+    <div class="grid" id="grille"></div>
+
+    <details id="cle">
+      <summary>🔑 Autorisation pour remplacer les vidéos <span id="cleEtat"></span></summary>
+      <p class="aide" style="margin-top:12px">Pour remplacer une vidéo, ce téléphone ou cet ordinateur doit avoir une clé d'accès à ton dépôt GitHub « ecrans ». Elle reste enregistrée uniquement sur cet appareil. À faire une seule fois par appareil :</p>
+      <ol>
+        <li>Ouvre <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" style="color:var(--or)">github.com/settings/personal-access-tokens/new</a> (connecté à ton compte GitHub).</li>
+        <li><b>Token name</b> : « Écrans Moule &amp; Smile ». <b>Expiration</b> : 1 an.</li>
+        <li><b>Repository access</b> : « Only select repositories » → choisis <b>ecrans</b> uniquement.</li>
+        <li><b>Permissions</b> → Repository permissions → <b>Contents</b> : « Read and write ».</li>
+        <li>Clique <b>Generate token</b>, copie la clé (elle commence par <code>github_pat_</code>) et colle-la ici :</li>
+      </ol>
+      <input id="cleInput" type="password" placeholder="github_pat_…" autocomplete="off">
+      <div class="ligne">
+        <button class="btn plein" id="cleSauver">Enregistrer la clé</button>
+        <button class="btn" id="cleOublier">Retirer la clé de cet appareil</button>
+      </div>
+      <div class="etat" id="cleMsg"></div>
+    </details>
+
     <p class="aide">
-      Sur chaque télé, ouvrez l'adresse de son écran dans Fully Kiosk Browser (page de démarrage).<br>
-      Touchez ou cliquez une fois l'écran pour passer en plein écran (sur ordinateur : touche F11). La vidéo tourne en boucle, sans le son. Les vidéos sont gardées en mémoire : elles continuent si la wifi coupe.<br>
-      Quand une vidéo est remplacée sur GitHub, les écrans se mettent à jour tout seuls (vérification toutes les 5 minutes).
+      <b>Sur les télés :</b> ouvrez l'adresse de l'écran dans Fully Kiosk Browser (page de démarrage). Sur un téléphone ou un ordinateur, touchez l'écran une fois pour passer en plein écran (touche F11 sur ordinateur).<br>
+      <b>Télécharger</b> enregistre la vidéo actuelle sur cet appareil (clé USB, réseaux sociaux…).<br>
+      <b>Remplacer</b> envoie une nouvelle vidéo (MP4, 1920×1080 conseillé, 40 Mo maximum). Les télés la prennent toutes seules en 5 à 10 minutes.<br>
+      Les vidéos sont gardées en mémoire sur les télés : elles continuent si la wifi coupe.
     </p>
   </main>
 </div>
 <div id="version"></div>
+<input type="file" id="fichier" accept="video/mp4" hidden>
 
 <script>
 // ====== Réglages ======
-const BUILD = "v.31/10/2026 11:17";          // date de version affichée
-const VIDEOS = { carte: "videos/carte.mp4", moules: "videos/moules.mp4", frites: "videos/frites.mp4" };
-const VERIF_MIN = 5;                         // vérification des mises à jour (minutes)
+const BUILD = "v.31/10/2026 11:27";        // version du code, affichée
+const DEPOT = "cevapizza11/ecrans";
+const ECRANS = {
+  carte:  { nom:"Carte",  desc:"Les 3 écrans de la salle",  fichier:"videos/carte.mp4" },
+  moules: { nom:"Moules", desc:"Écran du comptoir moules", fichier:"videos/moules.mp4" },
+  frites: { nom:"Frites", desc:"Écran du comptoir frites", fichier:"videos/frites.mp4" }
+};
+const VERIF_MIN = 5;          // les télés vérifient les nouveautés toutes les 5 minutes
+const TAILLE_MAX_MO = 40;     // taille maximum d'une vidéo envoyée
 
 document.getElementById("vtop").textContent = BUILD;
 document.getElementById("version").textContent = BUILD;
@@ -69,58 +106,190 @@ document.getElementById("version").textContent = BUILD;
 const ecran = new URLSearchParams(location.search).get("ecran");
 const player = document.getElementById("player");
 const msg = document.getElementById("msg");
-
 function montrer(t, ms) { msg.textContent = t; msg.style.display = "block"; if (ms) setTimeout(() => msg.style.display = "none", ms); }
 
-if (ecran && VIDEOS[ecran]) {
+// Version des contenus (change à chaque nouvelle vidéo ou nouvelle livraison)
+async function lireVersion() {
+  try {
+    const r = await fetch("version.txt?t=" + Date.now(), { cache: "no-store" });
+    if (r.ok) return (await r.text()).trim();
+  } catch (e) {}
+  try { const c = await caches.match("version.txt", { ignoreSearch: true }); if (c) return (await c.text()).trim(); } catch (e) {}
+  return BUILD;
+}
+
+// ================= MODE ÉCRAN (télés) =================
+async function demarrerEcran() {
   document.body.classList.add("ecran");
-  player.src = VIDEOS[ecran] + "?b=" + encodeURIComponent(BUILD);
+  const version = await lireVersion();
+  player.src = ECRANS[ecran].fichier + "?v=" + encodeURIComponent(version);
   const lancer = () => player.play().catch(() => setTimeout(lancer, 2000));
   player.addEventListener("canplay", lancer, { once: true });
-  // Plein écran : un toucher ou un clic suffit (le navigateur l'exige)
+  player.addEventListener("error", () => { montrer("Rechargement de la vidéo…"); setTimeout(() => location.reload(), 15000); });
+
+  // Plein écran au toucher / clic
   const pe = document.getElementById("pe");
   const estPleinEcran = () => !!(document.fullscreenElement || document.webkitFullscreenElement);
   const pleinEcran = () => {
     const el = document.documentElement;
     if (el.requestFullscreen) el.requestFullscreen().catch(() => {});
     else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
-    else if (player.webkitEnterFullscreen) player.webkitEnterFullscreen(); // iPhone
-    pe.style.display = "none";
-    lancer();
+    else if (player.webkitEnterFullscreen) player.webkitEnterFullscreen();
+    pe.style.display = "none"; lancer();
   };
   document.addEventListener("click", pleinEcran);
   document.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") pleinEcran(); });
-  // Petit message si on n'est pas en plein écran et que la fenêtre ne remplit pas l'écran
-  const verifPE = () => {
+  setTimeout(() => {
     const plein = estPleinEcran() || (innerHeight >= screen.height - 2 && innerWidth >= screen.width - 2);
-    pe.style.display = plein ? "none" : "flex";
-    if (!plein) setTimeout(() => { if (!estPleinEcran()) pe.style.display = "none"; }, 6000);
-  };
-  setTimeout(verifPE, 800);
+    if (!plein) { pe.style.display = "flex"; setTimeout(() => pe.style.display = "none", 6000); }
+  }, 800);
   document.addEventListener("fullscreenchange", () => { if (estPleinEcran()) pe.style.display = "none"; });
-  // Si la vidéo plante ou se fige : on recharge
-  player.addEventListener("error", () => { montrer("Rechargement de la vidéo…"); setTimeout(() => location.reload(), 15000); });
+
+  // Anti-blocage : vidéo figée 30 s → rechargement ; en pause → relance
   let dernier = 0, fige = 0;
   setInterval(() => {
-    if (player.currentTime === dernier && !player.paused) { if (++fige >= 3) location.reload(); }
-    else fige = 0;
+    if (player.currentTime === dernier && !player.paused) { if (++fige >= 3) location.reload(); } else fige = 0;
     dernier = player.currentTime;
     if (player.paused) lancer();
   }, 10000);
-  // Vérifie s'il y a une nouvelle version publiée
+
+  // Nouvelle vidéo ou nouvelle version → rechargement
   setInterval(async () => {
     try {
       const r = await fetch("version.txt?t=" + Date.now(), { cache: "no-store" });
-      if (r.ok) { const v = (await r.text()).trim(); if (v && v !== BUILD) location.reload(); }
-    } catch (e) { /* hors ligne : on garde la vidéo en mémoire */ }
+      if (r.ok) { const v = (await r.text()).trim(); if (v && v !== version) location.reload(); }
+    } catch (e) { /* hors ligne : on continue avec la vidéo en mémoire */ }
   }, VERIF_MIN * 60000);
-} else if (ecran) {
-  montrer("Écran inconnu : " + ecran);
 }
 
-if ("serviceWorker" in navigator) {
-  navigator.serviceWorker.register("sw.js").catch(() => {});
+// ================= MENU (téléchargement / remplacement) =================
+const CLE_LS = "ecrans_cle_github";
+const lireCle = () => { try { return localStorage.getItem(CLE_LS) || ""; } catch (e) { return ""; } };
+const ecrireCle = v => { try { v ? localStorage.setItem(CLE_LS, v) : localStorage.removeItem(CLE_LS); } catch (e) {} };
+
+function majEtatCle() {
+  const a = !!lireCle();
+  document.getElementById("cleEtat").textContent = a ? "— ✅ enregistrée sur cet appareil" : "— à configurer pour remplacer";
+  document.querySelectorAll(".remplacer").forEach(b => b.title = a ? "" : "Configurez d'abord la clé ci-dessous");
 }
+
+async function construireMenu() {
+  const version = await lireVersion();
+  const g = document.getElementById("grille");
+  g.innerHTML = "";
+  for (const [id, e] of Object.entries(ECRANS)) {
+    const d = document.createElement("div");
+    d.className = "carte";
+    d.innerHTML = `
+      <b>${e.nom}</b><span>${e.desc}</span>
+      <code>${location.origin}${location.pathname}?ecran=${id}</code>
+      <div class="btns">
+        <a class="btn plein" href="?ecran=${id}">▶ Afficher</a>
+        <a class="btn" href="${e.fichier}?v=${encodeURIComponent(version)}" download="MouleSmile_ecran_${id}.mp4">⬇ Télécharger</a>
+        <button class="btn remplacer" data-id="${id}">⬆ Remplacer</button>
+      </div>
+      <div class="barre" id="barre_${id}"><i></i></div>
+      <div class="etat" id="etat_${id}"></div>`;
+    g.appendChild(d);
+  }
+  document.querySelectorAll(".remplacer").forEach(b => b.addEventListener("click", () => choisirFichier(b.dataset.id)));
+  majEtatCle();
+}
+
+let ecranCible = null;
+function choisirFichier(id) {
+  if (!lireCle()) {
+    const det = document.getElementById("cle"); det.open = true; det.scrollIntoView({ behavior: "smooth" });
+    document.getElementById("cleMsg").textContent = "Enregistrez d'abord la clé GitHub pour pouvoir remplacer une vidéo.";
+    return;
+  }
+  ecranCible = id;
+  const f = document.getElementById("fichier"); f.value = ""; f.click();
+}
+
+document.getElementById("fichier").addEventListener("change", async ev => {
+  const file = ev.target.files[0]; if (!file || !ecranCible) return;
+  const id = ecranCible, etat = document.getElementById("etat_" + id), barre = document.getElementById("barre_" + id);
+  const setEtat = (t, c) => { etat.textContent = t; etat.className = "etat" + (c ? " " + c : ""); };
+  const setBarre = p => { barre.style.display = "block"; barre.firstElementChild.style.width = p + "%"; };
+  if (!/\.mp4$/i.test(file.name) && file.type !== "video/mp4") { setEtat("❌ Choisissez une vidéo au format MP4.", "err"); return; }
+  if (file.size > TAILLE_MAX_MO * 1024 * 1024) { setEtat(`❌ Vidéo trop lourde (${(file.size/1048576).toFixed(0)} Mo, maximum ${TAILLE_MAX_MO} Mo).`, "err"); return; }
+  if (!confirm(`Remplacer la vidéo « ${ECRANS[id].nom} » par « ${file.name} » ?\nLes télés de cet écran l'afficheront dans 5 à 10 minutes.`)) return;
+
+  const boutons = document.querySelectorAll(".remplacer"); boutons.forEach(b => b.disabled = true);
+  try {
+    setEtat("Préparation de la vidéo…"); setBarre(10);
+    const contenu = await enBase64(file);
+    setEtat("Envoi en cours… (ne fermez pas la page)"); setBarre(35);
+    await envoyerFichier(ECRANS[id].fichier, contenu, `Écran ${ECRANS[id].nom} : nouvelle vidéo (${file.name})`);
+    setBarre(85);
+    const maintenant = new Date().toLocaleString("fr-FR", { timeZone: "Europe/Paris", day:"2-digit", month:"2-digit", year:"numeric", hour:"2-digit", minute:"2-digit" }).replace(",", "");
+    await envoyerFichier("version.txt", btoa(unescape(encodeURIComponent(`video ${id} ${maintenant}\n`))), `Écrans : version du ${maintenant}`);
+    setBarre(100);
+    setEtat(`✅ Vidéo envoyée (${maintenant}). Les télés « ${ECRANS[id].nom} » l'afficheront d'ici 5 à 10 minutes.`, "ok");
+  } catch (e) {
+    setEtat("❌ " + e.message, "err");
+  } finally {
+    boutons.forEach(b => b.disabled = false);
+    setTimeout(() => barre.style.display = "none", 3000);
+  }
+});
+
+function enBase64(file) {
+  return new Promise((ok, ko) => {
+    const r = new FileReader();
+    r.onload = () => ok(String(r.result).split(",")[1]);
+    r.onerror = () => ko(new Error("Impossible de lire la vidéo."));
+    r.readAsDataURL(file);
+  });
+}
+
+async function api(chemin, options = {}) {
+  const r = await fetch("https://api.github.com/repos/" + DEPOT + "/contents/" + chemin, {
+    ...options,
+    headers: { "Authorization": "Bearer " + lireCle(), "Accept": "application/vnd.github+json", ...(options.headers || {}) }
+  });
+  if (r.status === 401) throw new Error("Clé GitHub refusée ou expirée : recréez-la dans « Autorisation » plus bas.");
+  if (r.status === 403) throw new Error("La clé n'a pas le droit d'écrire : vérifiez « Contents : Read and write » et le dépôt ecrans.");
+  return r;
+}
+
+async function envoyerFichier(chemin, base64, message) {
+  let sha;
+  const lu = await api(chemin + "?ref=main");
+  if (lu.ok) sha = (await lu.json()).sha;
+  const r = await api(chemin, { method: "PUT", body: JSON.stringify({ message, content: base64, sha, branch: "main" }) });
+  if (!r.ok) {
+    let d = ""; try { d = (await r.json()).message || ""; } catch (e) {}
+    throw new Error("Envoi refusé par GitHub (" + r.status + (d ? " : " + d : "") + ").");
+  }
+}
+
+document.getElementById("cleSauver").addEventListener("click", async () => {
+  const v = document.getElementById("cleInput").value.trim(), m = document.getElementById("cleMsg");
+  if (!v) { m.textContent = "Collez la clé avant d'enregistrer."; m.className = "etat err"; return; }
+  ecrireCle(v); m.textContent = "Vérification…"; m.className = "etat";
+  try {
+    const r = await fetch("https://api.github.com/repos/" + DEPOT, { headers: { "Authorization": "Bearer " + v, "Accept": "application/vnd.github+json" } });
+    if (!r.ok) throw 0;
+    const d = await r.json();
+    if (d.permissions && d.permissions.push === false) throw 1;
+    m.textContent = "✅ Clé enregistrée sur cet appareil. Vous pouvez remplacer les vidéos."; m.className = "etat ok";
+    document.getElementById("cleInput").value = "";
+  } catch (e) {
+    ecrireCle(""); m.textContent = "❌ Clé refusée. Vérifiez qu'elle donne accès au dépôt ecrans en écriture."; m.className = "etat err";
+  }
+  majEtatCle();
+});
+document.getElementById("cleOublier").addEventListener("click", () => {
+  ecrireCle(""); const m = document.getElementById("cleMsg"); m.textContent = "Clé retirée de cet appareil."; m.className = "etat"; majEtatCle();
+});
+
+// ================= Démarrage =================
+if (ecran && ECRANS[ecran]) demarrerEcran();
+else { if (ecran) montrer("Écran inconnu : " + ecran, 5000); construireMenu(); }
+
+if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(() => {});
 </script>
 </body>
 </html>

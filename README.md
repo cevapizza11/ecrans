@@ -6,6 +6,6 @@ Page d'affichage des vidéos en boucle sur les télés du restaurant.
 - Comptoir moules : https://cevapizza11.github.io/ecrans/?ecran=moules
 - Comptoir frites : https://cevapizza11.github.io/ecrans/?ecran=frites
 
-Pour changer une vidéo : remplacer le fichier dans `videos/` (même nom), puis changer la date dans `index.html` (BUILD), `version.txt` et `sw.js` (CACHE). Les écrans se mettent à jour en 5 minutes maximum.
+Pour changer une vidéo : menu de la page → « Remplacer » (clé GitHub à configurer une fois par appareil). Les écrans se mettent à jour en 5 à 10 minutes.
 
 Guide complet : `Guide_Ecrans_MouleSmile.pdf`

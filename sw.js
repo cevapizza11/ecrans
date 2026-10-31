@@ -1,6 +1,6 @@
 // Service worker des écrans Moule & Smile
-// Changer CACHE à chaque livraison pour forcer la mise à jour.
-const CACHE = "ecrans-v2026-10-31-1117";
+// Changer CACHE à chaque livraison du code pour forcer la mise à jour.
+const CACHE = "ecrans-v2026-10-31-1127";
 
 self.addEventListener("install", e => { self.skipWaiting(); });
 
@@ -16,19 +16,26 @@ self.addEventListener("fetch", e => {
   if (url.origin !== location.origin || e.request.method !== "GET") return;
 
   // Vidéos : depuis la mémoire d'abord (fonctionne hors ligne), avec gestion des "Range"
-  if (url.pathname.endsWith(".mp4")) {
-    e.respondWith(videoDepuisCache(e.request));
+  if (url.pathname.endsWith(".mp4")) { e.respondWith(videoDepuisCache(e.request)); return; }
+
+  // version.txt : réseau d'abord, gardé en mémoire (sans le ?t=) pour le hors ligne
+  if (url.pathname.endsWith("version.txt")) {
+    const cle = new Request(url.origin + url.pathname);
+    e.respondWith(
+      fetch(e.request).then(r => {
+        if (r.ok) { const c = r.clone(); caches.open(CACHE).then(ca => ca.put(cle, c)); }
+        return r;
+      }).catch(() => caches.match(cle))
+    );
     return;
   }
-  // Page et version : réseau d'abord, mémoire si hors ligne
+
+  // Page : réseau d'abord, mémoire si hors ligne
   e.respondWith(
     fetch(e.request).then(r => {
-      if (r.ok && !url.pathname.endsWith("version.txt")) {
-        const copie = r.clone();
-        caches.open(CACHE).then(c => c.put(e.request, copie));
-      }
+      if (r.ok) { const c = r.clone(); caches.open(CACHE).then(ca => ca.put(e.request, c)); }
       return r;
-    }).catch(() => caches.match(e.request, { ignoreSearch: url.pathname.endsWith("version.txt") }))
+    }).catch(() => caches.match(e.request))
   );
 });
 
@@ -39,14 +46,22 @@ async function videoDepuisCache(req) {
   if (!rep) {
     try {
       const reseau = await fetch(cle);
-      if (reseau.ok && reseau.status === 200) {
-        await cache.put(cle, reseau.clone());
-        rep = reseau;
-      } else {
-        return reseau;
+      if (!(reseau.ok && reseau.status === 200)) return reseau;
+      // On retire les anciennes versions de cette même vidéo
+      const chemin = new URL(req.url).pathname;
+      for (const k of await cache.keys()) {
+        const u = new URL(k.url);
+        if (u.pathname === chemin && k.url !== req.url) await cache.delete(k);
       }
+      await cache.put(cle, reseau.clone());
+      rep = reseau;
     } catch (err) {
-      return new Response("", { status: 503 });
+      // Hors ligne et version absente : on prend la dernière version connue de cette vidéo
+      const chemin = new URL(req.url).pathname;
+      for (const k of await cache.keys()) {
+        if (new URL(k.url).pathname === chemin) { rep = await cache.match(k); break; }
+      }
+      if (!rep) return new Response("", { status: 503 });
     }
   }
   const range = req.headers.get("range");
@@ -54,7 +69,7 @@ async function videoDepuisCache(req) {
   const blob = await rep.clone().blob();
   const m = /bytes=(\d*)-(\d*)/.exec(range);
   const debut = m && m[1] ? parseInt(m[1], 10) : 0;
-  const fin = m && m[2] ? parseInt(m[2], 10) : blob.size - 1;
+  const fin = m && m[2] ? Math.min(parseInt(m[2], 10), blob.size - 1) : blob.size - 1;
   const morceau = blob.slice(debut, fin + 1);
   return new Response(morceau, {
     status: 206,

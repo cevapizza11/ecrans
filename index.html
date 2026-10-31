@@ -78,7 +78,7 @@
     </details>
 
     <p class="aide">
-      <b>Sur les télés :</b> ouvrez l'adresse de l'écran dans Fully Kiosk Browser (page de démarrage). Sur un téléphone ou un ordinateur, touchez l'écran une fois pour passer en plein écran (touche F11 sur ordinateur).<br>
+      <b>Sur les télés :</b> ouvrez l'adresse courte de l'écran (ex. cevapizza11.github.io/ecrans/carte) dans le navigateur de la télé ou dans Fully Kiosk Browser. Sur un téléphone ou un ordinateur, touchez l'écran une fois pour passer en plein écran (touche F11 sur ordinateur).<br>
       <b>Télécharger</b> enregistre la vidéo actuelle sur cet appareil (clé USB, réseaux sociaux…).<br>
       <b>Remplacer</b> envoie une nouvelle vidéo (MP4, 1920×1080 conseillé, 40 Mo maximum). Les télés la prennent toutes seules en 5 à 10 minutes.<br>
       Les vidéos sont gardées en mémoire sur les télés : elles continuent si la wifi coupe.
@@ -90,7 +90,7 @@
 
 <script>
 // ====== Réglages ======
-const BUILD = "v.31/10/2026 11:27";        // version du code, affichée
+const BUILD = "v.31/10/2026 12:05";        // version du code, affichée
 const DEPOT = "cevapizza11/ecrans";
 const ECRANS = {
   carte:  { nom:"Carte",  desc:"Les 3 écrans de la salle",  fichier:"videos/carte.mp4" },
@@ -182,7 +182,7 @@ async function construireMenu() {
     d.className = "carte";
     d.innerHTML = `
       <b>${e.nom}</b><span>${e.desc}</span>
-      <code>${location.origin}${location.pathname}?ecran=${id}</code>
+      <code>${location.host}${location.pathname}${id}</code>
       <div class="btns">
         <a class="btn plein" href="?ecran=${id}">▶ Afficher</a>
         <a class="btn" href="${e.fichier}?v=${encodeURIComponent(version)}" download="MouleSmile_ecran_${id}.mp4">⬇ Télécharger</a>

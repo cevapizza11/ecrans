@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Écrans Moule &amp; Smile</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%23111'/><text x='50' y='68' font-size='56' text-anchor='middle'>📺</text></svg>">
+<style>
+  :root { --or:#D4A63A; --noir:#0b0b0b; }
+  html,body { margin:0; height:100%; background:#000; color:#fff; font-family:system-ui,Segoe UI,Roboto,sans-serif; overflow:hidden; }
+  /* Mode écran */
+  #player { position:fixed; inset:0; width:100vw; height:100vh; object-fit:contain; background:#000; display:none; }
+  body.ecran { cursor:none; }
+  body.ecran #player { display:block; }
+  body.ecran #menu { display:none; }
+  #version { position:fixed; right:10px; bottom:6px; font-size:11px; color:#fff; opacity:.18; z-index:5; pointer-events:none; }
+  #msg { position:fixed; left:50%; bottom:40px; transform:translateX(-50%); background:rgba(0,0,0,.7); color:var(--or); padding:10px 18px; border-radius:10px; font-size:18px; display:none; z-index:6; }
+  /* Menu de réglage */
+  #menu { min-height:100%; overflow:auto; background:var(--noir); }
+  header { display:flex; justify-content:space-between; align-items:center; padding:14px 20px; border-bottom:2px solid var(--or); }
+  header h1 { margin:0; font-size:22px; color:var(--or); }
+  header .v { font-size:13px; color:#aaa; }
+  main { max-width:900px; margin:0 auto; padding:24px 16px; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:16px; }
+  a.carte { display:block; text-decoration:none; color:#fff; background:#161616; border:1px solid #333; border-radius:14px; padding:20px; }
+  a.carte:hover { border-color:var(--or); }
+  a.carte b { display:block; font-size:20px; color:var(--or); margin-bottom:6px; }
+  a.carte span { color:#bbb; font-size:14px; }
+  a.carte code { display:block; margin-top:10px; font-size:12px; color:#888; word-break:break-all; }
+  p.aide { color:#aaa; font-size:14px; line-height:1.5; margin-top:28px; }
+</style>
+</head>
+<body>
+<video id="player" muted autoplay loop playsinline preload="auto"></video>
+<div id="msg"></div>
+
+<div id="menu">
+  <header>
+    <h1>Écrans Moule &amp; Smile</h1>
+    <span class="v" id="vtop"></span>
+  </header>
+  <main>
+    <div class="grid">
+      <a class="carte" href="?ecran=carte"><b>Carte</b><span>Les 3 écrans de la salle</span><code>?ecran=carte</code></a>
+      <a class="carte" href="?ecran=moules"><b>Moules</b><span>Écran du comptoir moules</span><code>?ecran=moules</code></a>
+      <a class="carte" href="?ecran=frites"><b>Frites</b><span>Écran du comptoir frites</span><code>?ecran=frites</code></a>
+    </div>
+    <p class="aide">
+      Sur chaque télé, ouvrez l'adresse de son écran dans Fully Kiosk Browser (page de démarrage).<br>
+      La vidéo tourne en boucle, sans le son. Les vidéos sont gardées en mémoire : elles continuent si la wifi coupe.<br>
+      Quand une vidéo est remplacée sur GitHub, les écrans se mettent à jour tout seuls (vérification toutes les 5 minutes).
+    </p>
+  </main>
+</div>
+<div id="version"></div>
+
+<script>
+// ====== Réglages ======
+const BUILD = "v.31/10/2026 10:56";          // date de version affichée
+const VIDEOS = { carte: "videos/carte.mp4", moules: "videos/moules.mp4", frites: "videos/frites.mp4" };
+const VERIF_MIN = 5;                         // vérification des mises à jour (minutes)
+
+document.getElementById("vtop").textContent = BUILD;
+document.getElementById("version").textContent = BUILD;
+
+const ecran = new URLSearchParams(location.search).get("ecran");
+const player = document.getElementById("player");
+const msg = document.getElementById("msg");
+
+function montrer(t, ms) { msg.textContent = t; msg.style.display = "block"; if (ms) setTimeout(() => msg.style.display = "none", ms); }
+
+if (ecran && VIDEOS[ecran]) {
+  document.body.classList.add("ecran");
+  player.src = VIDEOS[ecran] + "?b=" + encodeURIComponent(BUILD);
+  const lancer = () => player.play().catch(() => setTimeout(lancer, 2000));
+  player.addEventListener("canplay", lancer, { once: true });
+  // Si la vidéo plante ou se fige : on recharge
+  player.addEventListener("error", () => { montrer("Rechargement de la vidéo…"); setTimeout(() => location.reload(), 15000); });
+  let dernier = 0, fige = 0;
+  setInterval(() => {
+    if (player.currentTime === dernier && !player.paused) { if (++fige >= 3) location.reload(); }
+    else fige = 0;
+    dernier = player.currentTime;
+    if (player.paused) lancer();
+  }, 10000);
+  // Vérifie s'il y a une nouvelle version publiée
+  setInterval(async () => {
+    try {
+      const r = await fetch("version.txt?t=" + Date.now(), { cache: "no-store" });
+      if (r.ok) { const v = (await r.text()).trim(); if (v && v !== BUILD) location.reload(); }
+    } catch (e) { /* hors ligne : on garde la vidéo en mémoire */ }
+  }, VERIF_MIN * 60000);
+} else if (ecran) {
+  montrer("Écran inconnu : " + ecran);
+}
+
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("sw.js").catch(() => {});
+}
+</script>
+</body>
+</html>

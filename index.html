@@ -15,6 +15,8 @@
   body.ecran #menu { display:none; }
   #version { position:fixed; right:10px; bottom:6px; font-size:11px; color:#fff; opacity:.18; z-index:5; pointer-events:none; }
   #msg { position:fixed; left:50%; bottom:40px; transform:translateX(-50%); background:rgba(0,0,0,.7); color:var(--or); padding:10px 18px; border-radius:10px; font-size:18px; display:none; z-index:6; }
+  #pe { position:fixed; inset:0; display:none; align-items:center; justify-content:center; z-index:7; }
+  #pe span { background:rgba(0,0,0,.75); color:var(--or); border:2px solid var(--or); padding:16px 26px; border-radius:14px; font-size:22px; }
   /* Menu de réglage */
   #menu { min-height:100%; overflow:auto; background:var(--noir); }
   header { display:flex; justify-content:space-between; align-items:center; padding:14px 20px; border-bottom:2px solid var(--or); }
@@ -33,6 +35,7 @@
 <body>
 <video id="player" muted autoplay loop playsinline preload="auto"></video>
 <div id="msg"></div>
+<div id="pe"><span>Toucher l'écran pour passer en plein écran</span></div>
 
 <div id="menu">
   <header>
@@ -47,7 +50,7 @@
     </div>
     <p class="aide">
       Sur chaque télé, ouvrez l'adresse de son écran dans Fully Kiosk Browser (page de démarrage).<br>
-      La vidéo tourne en boucle, sans le son. Les vidéos sont gardées en mémoire : elles continuent si la wifi coupe.<br>
+      Touchez ou cliquez une fois l'écran pour passer en plein écran (sur ordinateur : touche F11). La vidéo tourne en boucle, sans le son. Les vidéos sont gardées en mémoire : elles continuent si la wifi coupe.<br>
       Quand une vidéo est remplacée sur GitHub, les écrans se mettent à jour tout seuls (vérification toutes les 5 minutes).
     </p>
   </main>
@@ -56,7 +59,7 @@
 
 <script>
 // ====== Réglages ======
-const BUILD = "v.31/10/2026 10:56";          // date de version affichée
+const BUILD = "v.31/10/2026 11:17";          // date de version affichée
 const VIDEOS = { carte: "videos/carte.mp4", moules: "videos/moules.mp4", frites: "videos/frites.mp4" };
 const VERIF_MIN = 5;                         // vérification des mises à jour (minutes)
 
@@ -74,6 +77,27 @@ if (ecran && VIDEOS[ecran]) {
   player.src = VIDEOS[ecran] + "?b=" + encodeURIComponent(BUILD);
   const lancer = () => player.play().catch(() => setTimeout(lancer, 2000));
   player.addEventListener("canplay", lancer, { once: true });
+  // Plein écran : un toucher ou un clic suffit (le navigateur l'exige)
+  const pe = document.getElementById("pe");
+  const estPleinEcran = () => !!(document.fullscreenElement || document.webkitFullscreenElement);
+  const pleinEcran = () => {
+    const el = document.documentElement;
+    if (el.requestFullscreen) el.requestFullscreen().catch(() => {});
+    else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
+    else if (player.webkitEnterFullscreen) player.webkitEnterFullscreen(); // iPhone
+    pe.style.display = "none";
+    lancer();
+  };
+  document.addEventListener("click", pleinEcran);
+  document.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") pleinEcran(); });
+  // Petit message si on n'est pas en plein écran et que la fenêtre ne remplit pas l'écran
+  const verifPE = () => {
+    const plein = estPleinEcran() || (innerHeight >= screen.height - 2 && innerWidth >= screen.width - 2);
+    pe.style.display = plein ? "none" : "flex";
+    if (!plein) setTimeout(() => { if (!estPleinEcran()) pe.style.display = "none"; }, 6000);
+  };
+  setTimeout(verifPE, 800);
+  document.addEventListener("fullscreenchange", () => { if (estPleinEcran()) pe.style.display = "none"; });
   // Si la vidéo plante ou se fige : on recharge
   player.addEventListener("error", () => { montrer("Rechargement de la vidéo…"); setTimeout(() => location.reload(), 15000); });
   let dernier = 0, fige = 0;

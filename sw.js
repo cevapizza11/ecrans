@@ -1,6 +1,6 @@
 // Service worker des écrans Moule & Smile
 // Changer CACHE à chaque livraison pour forcer la mise à jour.
-const CACHE = "ecrans-v2026-10-31-1056";
+const CACHE = "ecrans-v2026-10-31-1117";
 
 self.addEventListener("install", e => { self.skipWaiting(); });
 

@@ -1,8 +1,24 @@
 <!doctype html>
-<html lang="fr"><head><meta charset="utf-8">
+<html lang="fr">
+<head>
+<meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Écran carte – Moule &amp; Smile</title>
-<style>html,body{margin:0;height:100%;background:#000}</style>
-<script>location.replace("../?ecran=carte");</script>
-<meta http-equiv="refresh" content="0; url=../?ecran=carte">
-</head><body></body></html>
+<style>
+  html,body{margin:0;padding:0;width:100%;height:100%;background:#000;overflow:hidden;cursor:none}
+  #player{position:fixed;left:0;top:0;width:100%;height:100%;object-fit:contain;background:#000}
+  #version{position:fixed;right:10px;bottom:6px;font:11px Arial,sans-serif;color:#fff;opacity:.18;z-index:5}
+  #msg{position:fixed;left:0;right:0;bottom:40px;text-align:center;color:#D4A63A;font:18px Arial,sans-serif;display:none;z-index:6}
+  #pe{position:fixed;left:0;right:0;top:45%;text-align:center;display:none;z-index:7}
+  #pe span{display:inline-block;background:rgba(0,0,0,.75);color:#D4A63A;border:2px solid #D4A63A;padding:16px 26px;border-radius:14px;font:22px Arial,sans-serif}
+</style>
+</head>
+<body>
+<video id="player" muted autoplay loop playsinline preload="auto"></video>
+<div id="pe"><span>Appuyez sur OK (ou touchez l'écran) pour le plein écran</span></div>
+<div id="msg"></div>
+<div id="version"></div>
+<script>window.ECRAN = "carte";</script>
+<script src="../player.js?b=1230"></script>
+</body>
+</html>

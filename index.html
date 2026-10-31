@@ -45,6 +45,7 @@
   details input { width:100%; padding:10px; border-radius:8px; border:1px solid var(--bord); background:#0f0f0f; color:#fff; font-size:14px; margin:8px 0; }
   .ligne { display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
 </style>
+<script>(function(){var m=/[?&]ecran=(carte|moules|frites)/.exec(location.search);if(m){location.replace(m[1]+"/");}})();</script>
 </head>
 <body>
 <video id="player" muted autoplay loop playsinline preload="auto"></video>
@@ -90,7 +91,7 @@
 
 <script>
 // ====== Réglages ======
-const BUILD = "v.31/10/2026 12:05";        // version du code, affichée
+const BUILD = "v.31/10/2026 12:30";        // version du code, affichée
 const DEPOT = "cevapizza11/ecrans";
 const ECRANS = {
   carte:  { nom:"Carte",  desc:"Les 3 écrans de la salle",  fichier:"videos/carte.mp4" },
@@ -184,7 +185,7 @@ async function construireMenu() {
       <b>${e.nom}</b><span>${e.desc}</span>
       <code>${location.host}${location.pathname}${id}</code>
       <div class="btns">
-        <a class="btn plein" href="?ecran=${id}">▶ Afficher</a>
+        <a class="btn plein" href="${id}/">▶ Afficher</a>
         <a class="btn" href="${e.fichier}?v=${encodeURIComponent(version)}" download="MouleSmile_ecran_${id}.mp4">⬇ Télécharger</a>
         <button class="btn remplacer" data-id="${id}">⬆ Remplacer</button>
       </div>
@@ -245,10 +246,9 @@ function enBase64(file) {
 }
 
 async function api(chemin, options = {}) {
-  const r = await fetch("https://api.github.com/repos/" + DEPOT + "/contents/" + chemin, {
-    ...options,
-    headers: { "Authorization": "Bearer " + lireCle(), "Accept": "application/vnd.github+json", ...(options.headers || {}) }
-  });
+  const r = await fetch("https://api.github.com/repos/" + DEPOT + "/contents/" + chemin, Object.assign({}, options, {
+    headers: Object.assign({ "Authorization": "Bearer " + lireCle(), "Accept": "application/vnd.github+json" }, options.headers || {})
+  }));
   if (r.status === 401) throw new Error("Clé GitHub refusée ou expirée : recréez-la dans « Autorisation » plus bas.");
   if (r.status === 403) throw new Error("La clé n'a pas le droit d'écrire : vérifiez « Contents : Read and write » et le dépôt ecrans.");
   return r;
